@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poemarium — Iteration 2</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+<header id="top">
+  <div id="brand">
+    <div id="wordmark-row">
+      <h1 id="wordmark">poemarium</h1>
+      <svg class="doodle sparkle" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M12 1 C12.8 8.2 15.6 11.1 23 12 C15.6 12.9 12.8 15.8 12 23 C11.2 15.8 8.4 12.9 1 12 C8.4 11.1 11.2 8.2 12 1 Z"/>
+      </svg>
+    </div>
+  </div>
+  <button type="button" id="end-session" hidden><span class="btn-glyph" aria-hidden="true">✧</span>End session</button>
+  <button type="button" id="new-session" hidden><span class="btn-glyph" aria-hidden="true">✦</span>Start session</button>
+</header>
+
+<main>
+  <section id="editor-pane" class="card card-poem" aria-label="Current poem">
+    <div class="card-title-row">
+      <span class="card-title">current poem</span>
+      <span class="spacer"></span>
+      <button type="button" id="annotated-toggle" aria-pressed="false"
+        title="Read the poem with its line notes (Markdown copy / download)">annotated</button>
+    </div>
+    <input id="title" placeholder="Untitled" autocomplete="off" spellcheck="false" aria-label="Poem title">
+    <div id="write-banner" role="status" hidden>
+      <span>Writing is off in this window — the poem is open in another one.</span>
+      <button type="button" id="take-over">write here instead</button>
+    </div>
+    <div id="start-banner" role="status" hidden>
+      <span id="start-banner-text">No session is open. Start one to write, consult and pin.</span>
+      <button type="button" id="start-here">start a session</button>
+    </div>
+    <div id="editor-wrap">
+      <div id="caret-line" hidden></div>
+      <div id="consult-band" hidden></div>
+      <div id="gutter" aria-hidden="false"><div id="gutter-inner"></div></div>
+      <textarea id="draft" wrap="off" spellcheck="false" autocomplete="off"
+        aria-label="Poem draft — Cmd+Enter consults the archive with the caret line; Cmd+/ writes a note on it"
+        placeholder=""></textarea>
+      <div id="note-pop" role="dialog" aria-label="Line note" hidden>
+        <div id="note-pop-line" class="micro"></div>
+        <textarea id="note-text" rows="3" aria-label="Note on this line"
+          placeholder=""></textarea>
+        <div id="note-pop-actions">
+          <button type="button" id="note-delete" hidden>Delete</button>
+          <span class="spacer"></span>
+          <span class="micro">⌘↵ saves · Esc closes</span>
+          <button type="button" id="note-save">Save</button>
+        </div>
+        <div id="note-pop-detached" hidden></div>
+      </div>
+    </div>
+    <div id="annotated-view" hidden>
+      <div id="annotated-body" aria-label="Annotated poem"></div>
+      <div id="annotated-actions">
+        <button type="button" id="annotated-copy">Copy markdown</button>
+        <button type="button" id="annotated-download">Download .md</button>
+        <span id="annotated-note" class="micro" hidden></span>
+      </div>
+    </div>
+    <div id="poem-foot">
+      <span class="dot ink" aria-hidden="true"></span>
+      <span id="line-count">0 lines</span>
+      <button type="button" id="detached-notes" class="micro" hidden></button>
+    </div>
+  </section>
+
+  <div class="splitter" id="split-editor" role="separator" aria-orientation="vertical"
+    aria-label="Resize the poem pane" tabindex="0" title="drag to resize · double-click to reset"></div>
+
+  <section id="field-col" aria-label="Archive field">
+    <header id="consult-strip" class="card card-strip">
+      <div id="consulted-wrap">
+        <div id="consult-head-row">
+          <span class="card-title" id="consult-label">consulting line</span>
+          <span class="spacer"></span>
+          <button type="button" id="reflect-toggle" class="text-btn" aria-expanded="false"
+            aria-controls="reflect-box" title="A short reflection on this cycle, saved against this consult" hidden>reflect on this cycle</button>
+        </div>
+        <div id="consulted-line">&nbsp;</div>
+        <div id="consult-status" class="micro" hidden></div>
+        <div id="flash-note" class="micro" hidden></div>
+        <div id="reflect-box" hidden>
+          <textarea id="reflect-text" rows="3" aria-label="Reflection on this cycle"
+            placeholder=""></textarea>
+          <div id="reflect-actions">
+            <span class="spacer"></span>
+            <span class="micro">⌘↵ saves · Esc closes</span>
+            <button type="button" id="reflect-save">Save</button>
+          </div>
+        </div>
+      </div>
+      <svg class="doodle star" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path d="M12 2.2 L14.6 8.9 L21.8 9.3 L16.2 13.9 L18 20.9 L12 17 L6 20.9 L7.8 13.9 L2.2 9.3 L9.4 8.9 Z"/>
+      </svg>
+    </header>
+
+    <section id="view-field" class="card view" aria-label="Archive field">
+      <div class="card-title-row">
+        <span class="card-title">archive field</span>
+        <span class="spacer"></span>
+        <div id="zoom" aria-label="Zoom">
+          <button type="button" id="zoom-out" aria-label="Zoom out" disabled>−</button>
+          <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+      <p class="placeholder micro">place the caret on a line and press ⌘↵ — or touch its gutter mark — to consult the archive with it</p>
+      <div id="field-scroll">
+        <svg id="field" viewBox="0 0 520 520" role="img"
+          aria-label="Archive field: the ten archive items nearest your line" hidden></svg>
+      </div>
+      <div id="field-foot">
+        <div id="type-key" aria-label="Archive item types">
+          <span class="key-item"><span class="key key-poetry" aria-hidden="true"></span>poetry</span>
+          <span class="key-item"><span class="key key-prose_excerpt" aria-hidden="true"></span>prose</span>
+          <span class="key-item"><span class="key key-note" aria-hidden="true"></span>note</span>
+          <span class="key-item"><span class="key key-fragment" aria-hidden="true"></span>fragment</span>
+        </div>
+        <p id="field-caption" class="micro" hidden>nearer to your line sits nearer the centre · angle carries no meaning</p>
+      </div>
+    </section>
+  </section>
+
+  <div class="splitter" id="split-item" role="separator" aria-orientation="vertical"
+    aria-label="Resize the archive item pane" tabindex="0" title="drag to resize · double-click to reset"></div>
+
+  <aside id="item-pane" class="card" aria-label="Archive item">
+    <div id="item-head">
+      <span class="card-title">archive item</span>
+      <button type="button" id="item-close" aria-label="Close archive item">×</button>
+    </div>
+    <p id="item-empty" class="micro">click a mark in the field, or a pinned card, to read it here</p>
+    <div id="item-content" hidden>
+      <div id="item-type" class="type-pill"><span class="key" aria-hidden="true"></span><span id="item-type-text"></span></div>
+      <div id="item-body"></div>
+      <div id="item-cue" class="micro"></div>
+      <div id="item-source" hidden>
+        <button type="button" id="item-source-toggle" class="text-btn" aria-expanded="false"
+          aria-controls="item-source-text">show the whole poem</button>
+        <div id="item-source-text" hidden></div>
+      </div>
+      <div id="item-for" class="micro"></div>
+      <div id="item-recur" class="micro" hidden></div>
+      <button type="button" id="item-pin"><span class="btn-glyph" aria-hidden="true">⌖</span><span id="item-pin-text">Pin</span></button>
+
+    </div>
+      <section id="mediation" aria-label="Mediation">
+        <div id="mediation-head">
+          <span class="card-title">mediation</span>
+        </div>
+        <div id="connect-picks" aria-label="Chosen for Connect"></div>
+        <p id="connect-hint" class="micro">nothing chosen yet · open an item and add it</p>
+        <div id="mediation-actions">
+          <button type="button" id="connect-add" disabled aria-pressed="false" title="choose this item for Connect (up to three)">+ Add to Connect</button>
+          <button type="button" id="mediate-connect" disabled title="Run Connect">Connect</button>
+          <button type="button" id="mediate-reframe" disabled title="Run Reframe">Reframe</button>
+        </div>
+        <p id="mediation-unavailable" class="micro">No interpretation model is configured.</p>
+        <div id="mediation-cards"></div>
+      </section>
+  </aside>
+</main>
+
+<section id="pin-tray" class="card" aria-label="Pinned material">
+  <div id="pin-tray-head">
+    <span class="card-title" id="pin-tray-label">pinned material</span>
+    <svg class="doodle squiggle" viewBox="0 0 60 12" width="60" height="12" aria-hidden="true">
+      <path d="M2 7 q6 -9 12 0 t12 0 t12 0 t12 0 t8 0" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <span class="spacer"></span>
+    <button type="button" id="pin-tray-toggle" aria-expanded="true" aria-label="Collapse pinned material">⌃</button>
+  </div>
+  <div id="pin-list"></div>
+  <p id="pin-empty" class="micro">nothing pinned yet</p>
+</section>
+
+<footer id="status-bar">
+  <span id="session-pill"><span class="dot" aria-hidden="true"></span><span id="session-pill-text">Session active</span></span>
+  <span id="status-meta" class="micro">connecting…</span>
+  <span class="spacer"></span>
+  <button type="button" id="help-btn" aria-label="Keys and what is recorded">?</button>
+</footer>
+
+<div id="tooltip" hidden></div>
+
+<div id="dialog-overlay" hidden>
+  <div id="dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="dialog-heading">
+    <p id="dialog-heading">Session notes (optional)</p>
+    <div id="reflect-questions">
+      <label class="rq"><span>Note 1</span><textarea rows="3" data-q="q1"></textarea></label>
+      <label class="rq"><span>Note 2</span><textarea rows="3" data-q="q2"></textarea></label>
+      <label class="rq"><span>Note 3</span><textarea rows="3" data-q="q3"></textarea></label>
+      <label class="rq"><span>Note 4</span><textarea rows="3" data-q="q4"></textarea></label>
+      <label class="rq"><span>Note 5</span><textarea rows="3" data-q="q5"></textarea></label>
+      <label class="rq"><span>Additional note</span><textarea rows="3" data-q="other"></textarea></label>
+    </div>
+    <textarea id="session-note" rows="2" aria-label="Session note" hidden></textarea>
+    <p id="dialog-error" class="micro" hidden>could not reach the archive server — your answers are kept right here; try again, or Skip</p>
+    <div class="modal-actions">
+      <button type="button" id="dialog-skip">Skip</button>
+      <button type="button" id="dialog-save">Save and end session</button>
+    </div>
+  </div>
+</div>
+
+<div id="new-session-overlay" hidden>
+  <div id="new-session-dialog" class="modal" role="dialog" aria-modal="true" aria-labelledby="new-session-heading">
+    <p id="new-session-heading">Start a session? The pinned tray starts empty. The poem can continue, or start empty — the poem as it is now stays in the record either way.</p>
+    <p id="new-session-error" class="micro" hidden>could not reach the archive server — try again</p>
+    <div class="modal-actions">
+      <button type="button" id="new-session-cancel">Cancel</button>
+      <button type="button" id="new-session-empty">Start an empty poem</button>
+      <button type="button" id="new-session-continue">Continue this poem</button>
+    </div>
+  </div>
+</div>
+
+<div id="help-overlay" hidden>
+  <div id="help" class="modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="card-title" id="help-title">keys · and what is recorded</div>
+    <dl id="help-keys">
+      <dt>⌘↵ / Ctrl↵</dt><dd>consult the archive with the line under the caret (or click the line's gutter mark)</dd>
+      <dt>⌘/ / Ctrl+/</dt><dd>write or edit a note on the line under the caret (or click the small mark left of the line)</dd>
+      <dt>Enter on a mark in the field</dt><dd>open that archive item</dd>
+      <dt>annotated</dt><dd>read the poem with its notes; copy or download it as Markdown</dd>
+      <dt>reflect on this cycle</dt><dd>in the consulting-line strip: a short reflection saved against that consult (⌘↵ saves)</dd>
+      <dt>show the whole poem / the other units</dt><dd>in Archive Item: for a line from one of your own poems the poem it comes from; for other units, the archive's other units from the same source (recorded)</dd>
+      <dt>Start session</dt><dd>nothing is recorded as a session until you start one; the tray starts empty; End session opens the optional note fields and closes it</dd>
+      <dt>+ Add to Connect / Connect / Reframe</dt><dd>select one to three archive items for Connect, or use the opened item for Reframe; both controls require a configured provider</dd>
+      <dt>Esc</dt><dd>close a dialog, then a note, then the annotated view, then a floating item pane, then reset zoom</dd>
+      <dt>thin bars between panes</dt><dd>drag to resize; double-click to reset</dd>
+    </dl>
+    <p class="help-note micro">In the field, nearer to your line means nearer in meaning; angle means nothing. poetry ● · prose ◆ · note ▪ · fragment ○. Every consult is recorded with the poem as it was, the ten items shown and which of them you read, opened or pinned; every version of the poem, every note and every pin is kept. Retrieval and mediation require archive data and a configured provider. Neither is included in this distribution.</p>
+    <div class="modal-actions">
+      <button type="button" id="help-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/anchor.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
