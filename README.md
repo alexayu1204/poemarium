@@ -46,12 +46,4 @@ To go further, supply your own:
 - `iteration2/mediation.py`: a provider interface taking an action name and structured input. The bundled placeholder reports that no model is configured. Connect and Reframe stay disabled until it is replaced.
 - `ingest.py`: the workbook schema and archive preparation functions.
 
-No model weights, credentials or external model services are included, and no role instructions or response templates are supplied. `app.py` holds the server and routes; `export.py` rebuilds sessions from the local records. The interface is plain HTML, CSS and JavaScript with no build step, using locally installed fonts or system fallbacks.
 
-## Where files go
-
-Records are written to `iteration1/research/iteration1/` and `iteration2/research/iteration2/`. Archive files belong in each iteration's `data/`. `POETRY_DATA_DIR` and `POETRY_RESEARCH_DIR` override both. Keep the two research directories separate.
-
-Iteration 2 can read selected Iteration 1 sessions for recurrence lookup; that selection is empty by default.
-
-`.gitignore` excludes the data and research directories, exports, spreadsheets, model files, prompt files, local settings and caches. Anything saved outside those paths needs its own rule.
