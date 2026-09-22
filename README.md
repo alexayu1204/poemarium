@@ -2,8 +2,6 @@
 
 Source for two iterations of a local poetry-writing workspace.
 
-Both start empty. The archive, poems, annotations, session records, embeddings, model implementations and prompt text are not included, so retrieval, Connect and Reframe stay unavailable until you supply them.
-
 ## The two iterations
 
 **`iteration1/`** contains the poem editor, archive field, item reader, pinned material, line annotations and session recording. Retrieval ranks by cosine similarity, returns up to ten items and allows at most two per source.
